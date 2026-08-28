@@ -24,6 +24,11 @@ const COLORS = {
 };
 
 class NerdminerCard extends HTMLElement {
+  constructor() {
+    super();
+    this.attachShadow({ mode: "open" });
+  }
+
   setConfig(config) {
     if (!config || !config.entity_prefix && !config.entities) {
       throw new Error("Set entity_prefix or entities in the Nerdminer card configuration");

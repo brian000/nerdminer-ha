@@ -24,6 +24,32 @@ Copy `custom_components/nerdminer_ha` into the `custom_components` directory of 
 
 Then go to **Settings > Devices & services**, select **Add Integration**, and search for **Nerdminer-HA**. Add one integration entry for each miner using its hostname or IP address. The integration creates sensors for hashing, shares, difficulty, blocks, temperatures, uptime, CPU frequency, and MAC address. Controls are not currently exposed.
 
+## Nerdminer dashboard card
+
+The repository includes a custom Lovelace card with live metrics and history graphs. HACS installs the integration itself, but the card JavaScript must also be copied into Home Assistant's `www` directory:
+
+```text
+/config/www/nerdminer-card.js
+```
+
+Copy `www/nerdminer-card.js` there, then register it under **Settings > Dashboards > Resources**:
+
+```text
+URL: /local/nerdminer-card.js
+Resource type: JavaScript module
+```
+
+Add the card to a dashboard in YAML mode. Replace `nm01` with the entity prefix shown by your miner's entities:
+
+```yaml
+type: custom:nerdminer-card
+title: Nerdminer-HA / nm01
+entity_prefix: nm01
+hours_to_show: 6
+```
+
+The card plots the 1-minute and 5-minute average hashrates together, shows hardware/software hashrate composition, and includes current hashrate, shares, board temperature, uptime, and refresh status.
+
 ---
 
 This is entirely vibecoded.  I have no idea what I'm doing.  

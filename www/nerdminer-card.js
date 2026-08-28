@@ -106,12 +106,26 @@ class NerdminerCard extends HTMLElement {
 
   _path(series, width, height, min, max) {
     if (!series.length) return "";
+    return this._coordinates(series, width, height, min, max).map((point, index) =>
+      `${index ? "L" : "M"}${point.x.toFixed(1)} ${point.y.toFixed(1)}`
+    ).join(" ");
+  }
+
+  _coordinates(series, width, height, min, max) {
     const range = max - min || 1;
     return series.map((point, index) => {
       const x = series.length === 1 ? width / 2 : (index / (series.length - 1)) * width;
       const y = height - ((point.value - min) / range) * height;
-      return `${index ? "L" : "M"}${x.toFixed(1)} ${Math.max(0, Math.min(height, y)).toFixed(1)}`;
-    }).join(" ");
+      return { x, y: Math.max(0, Math.min(height, y)) };
+    });
+  }
+
+  _areaPath(upper, lower, width, height, max) {
+    const top = this._coordinates(upper, width, height, 0, max);
+    const bottom = this._coordinates(lower, width, height, 0, max).reverse();
+    return [...top, ...bottom].map((point, index) =>
+      `${index ? "L" : "M"}${point.x.toFixed(1)} ${point.y.toFixed(1)}`
+    ).join(" ") + " Z";
   }
 
   _lineChart(seriesList, colors, stacked = false) {
@@ -123,8 +137,9 @@ class NerdminerCard extends HTMLElement {
     const min = stacked ? 0 : Math.min(...all.map((point) => point.value), 0);
     const paths = seriesList.map((series, index) => {
       if (!stacked) return `<path d="${this._path(series, width, height, min, max)}" stroke="${colors[index]}"/>`;
-      const cumulative = series.map((point, pointIndex) => ({ ...point, value: seriesList.slice(0, index + 1).reduce((sum, item) => sum + (item[pointIndex]?.value || 0), 0) }));
-      return `<path d="${this._path(cumulative, width, height, 0, max)}" stroke="${colors[index]}"/>`;
+      const upper = series.map((point, pointIndex) => ({ ...point, value: seriesList.slice(0, index + 1).reduce((sum, item) => sum + (item[pointIndex]?.value || 0), 0) }));
+      const lower = series.map((point, pointIndex) => ({ ...point, value: seriesList.slice(0, index).reduce((sum, item) => sum + (item[pointIndex]?.value || 0), 0) }));
+      return `<path d="${this._areaPath(upper, lower, width, height, max)}" stroke="${colors[index]}" fill="${colors[index]}" fill-opacity=".34"/>`;
     }).join("");
     return `<svg viewBox="0 0 ${width} ${height}" preserveAspectRatio="none" role="img"><line x1="0" y1="${height}" x2="${width}" y2="${height}" class="axis"/><line x1="0" y1="${height / 2}" x2="${width}" y2="${height / 2}" class="grid"/>${paths}</svg>`;
   }

@@ -30,9 +30,20 @@ class NerdMinerCoordinator(DataUpdateCoordinator[dict[str, Any]]):
 
     async def _async_update_data(self) -> dict[str, Any]:
         """Fetch the current device information."""
+        return await self.async_request(API_PATH)
+
+    async def async_request(
+        self, path: str, method: str = "GET", payload: dict[str, Any] | None = None
+    ) -> dict[str, Any]:
+        """Make an authenticated request to the device API."""
         session = async_get_clientsession(self.hass)
         try:
-            async with session.get(self.url, headers=API_HEADERS) as response:
+            async with session.request(
+                method,
+                f"http://{self.host}{path}",
+                headers=API_HEADERS,
+                json=payload,
+            ) as response:
                 response.raise_for_status()
                 data = await response.json()
         except (ClientError, ValueError) as err:

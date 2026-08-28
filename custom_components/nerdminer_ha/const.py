@@ -6,7 +6,7 @@ from typing import Final
 
 DOMAIN: Final = "nerdminer_ha"
 CONF_HOST: Final = "host"
-DEFAULT_NAME: Final = "NerdMiner"
+DEFAULT_NAME: Final = "Nerdminer-HA"
 DEFAULT_SCAN_INTERVAL: Final = 30
 API_PATH: Final = "/api/axehub/v1/info"
 

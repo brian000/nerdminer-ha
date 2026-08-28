@@ -77,7 +77,7 @@ class NerdMinerSensor(CoordinatorEntity[NerdMinerCoordinator], SensorEntity):
         self._attr_device_info = DeviceInfo(
             identifiers={(DOMAIN, entry.unique_id or entry.entry_id)},
             name=device.get("hostname", entry.title),
-            manufacturer="NerdMiner",
+            manufacturer="Nerdminer-HA",
             model=device.get("board"),
             sw_version=coordinator.data.get("firmware", {}).get("version") if coordinator.data else None,
         )

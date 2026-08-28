@@ -2,19 +2,19 @@
   "config": {
     "step": {
       "user": {
-        "title": "Add NerdMiner",
-        "description": "Enter the hostname or IP address of your NerdMiner.",
+        "title": "Add Nerdminer-HA",
+        "description": "Enter the hostname or IP address of your Nerdminer-HA device.",
         "data": {
           "host": "Hostname or IP address"
         }
       }
     },
     "error": {
-      "cannot_connect": "Unable to connect to the NerdMiner.",
+      "cannot_connect": "Unable to connect to the Nerdminer-HA device.",
       "invalid_response": "The device returned an invalid response."
     },
     "abort": {
-      "already_configured": "This NerdMiner is already configured."
+      "already_configured": "This Nerdminer-HA device is already configured."
     }
   }
 }

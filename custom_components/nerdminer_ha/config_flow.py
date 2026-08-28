@@ -1,4 +1,4 @@
-"""Config flow for NerdMiner."""
+"""Config flow for Nerdminer-HA."""
 
 from __future__ import annotations
 
@@ -13,7 +13,7 @@ from .const import API_PATH, DEFAULT_NAME, DOMAIN
 
 
 class NerdMinerConfigFlow(ConfigFlow, domain=DOMAIN):
-    """Handle a NerdMiner config flow."""
+    """Handle a Nerdminer-HA config flow."""
 
     VERSION = 1
 

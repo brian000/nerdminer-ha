@@ -24,7 +24,7 @@ class NerdMinerCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         super().__init__(
             hass,
             logger=_LOGGER,
-            name=f"NerdMiner {host}",
+            name=f"Nerdminer-HA {host}",
             update_interval=timedelta(seconds=DEFAULT_SCAN_INTERVAL),
         )
 
@@ -39,5 +39,5 @@ class NerdMinerCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             raise UpdateFailed(f"Unable to fetch data from {self.host}") from err
 
         if not isinstance(data, dict):
-            raise UpdateFailed("NerdMiner API returned an invalid response")
+            raise UpdateFailed("Nerdminer-HA API returned an invalid response")
         return data

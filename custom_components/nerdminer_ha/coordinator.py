@@ -10,7 +10,7 @@ from aiohttp import ClientError
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 
-from .const import API_PATH, DEFAULT_SCAN_INTERVAL
+from .const import API_HEADERS, API_PATH, DEFAULT_SCAN_INTERVAL
 
 _LOGGER = logging.getLogger(__package__)
 
@@ -32,7 +32,7 @@ class NerdMinerCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         """Fetch the current device information."""
         session = async_get_clientsession(self.hass)
         try:
-            async with session.get(self.url) as response:
+            async with session.get(self.url, headers=API_HEADERS) as response:
                 response.raise_for_status()
                 data = await response.json()
         except (ClientError, ValueError) as err:

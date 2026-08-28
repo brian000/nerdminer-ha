@@ -9,7 +9,7 @@ from homeassistant.const import CONF_HOST
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.helpers.selector import TextSelector, TextSelectorConfig
 
-from .const import API_PATH, DEFAULT_NAME, DOMAIN
+from .const import API_HEADERS, API_PATH, DEFAULT_NAME, DOMAIN
 
 
 class NerdMinerConfigFlow(ConfigFlow, domain=DOMAIN):
@@ -24,7 +24,9 @@ class NerdMinerConfigFlow(ConfigFlow, domain=DOMAIN):
             host = user_input[CONF_HOST].strip().rstrip("/")
             try:
                 session = async_get_clientsession(self.hass)
-                async with session.get(f"http://{host}{API_PATH}") as response:
+                async with session.get(
+                    f"http://{host}{API_PATH}", headers=API_HEADERS
+                ) as response:
                     response.raise_for_status()
                     data = await response.json()
             except (ClientError, ValueError):

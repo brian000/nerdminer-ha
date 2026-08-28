@@ -3,9 +3,12 @@
 from __future__ import annotations
 
 from homeassistant.config_entries import ConfigEntry
+from homeassistant.const import CONF_HOST
 from homeassistant.core import HomeAssistant
+from homeassistant.exceptions import ConfigEntryNotReady
 
 from .const import DOMAIN
+from .coordinator import NerdMinerCoordinator
 
 
 async def async_setup(hass: HomeAssistant, config: dict) -> bool:
@@ -15,9 +18,20 @@ async def async_setup(hass: HomeAssistant, config: dict) -> bool:
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up NerdMiner from a config entry."""
+    coordinator = NerdMinerCoordinator(hass, entry.data[CONF_HOST])
+    try:
+        await coordinator.async_config_entry_first_refresh()
+    except ConfigEntryNotReady:
+        raise
+
+    hass.data.setdefault(DOMAIN, {})[entry.entry_id] = coordinator
+    await hass.config_entries.async_forward_entry_setups(entry, ["sensor"])
     return True
 
 
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Unload a NerdMiner config entry."""
-    return True
+    unloaded = await hass.config_entries.async_unload_platforms(entry, ["sensor"])
+    if unloaded:
+        hass.data[DOMAIN].pop(entry.entry_id)
+    return unloaded

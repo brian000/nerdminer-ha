@@ -22,4 +22,8 @@ Add one integration entry for each miner using its hostname or IP address.
 
 Copy `custom_components/nerdminer_ha` into the `custom_components` directory of your Home Assistant configuration and restart Home Assistant.
 
-Then go to **Settings > Devices & services**, select **Add Integration**, and search for **Nerdminer-HA**. Add one integration entry for each miner using its hostname or IP address. The integration creates sensors for hashing, shares, difficulty, blocks, temperatures, uptime, CPU frequency, and MAC address.
+Then go to **Settings > Devices & services**, select **Add Integration**, and search for **Nerdminer-HA**. Add one integration entry for each miner using its hostname or IP address. The integration creates sensors for hashing, shares, difficulty, blocks, temperatures, uptime, CPU frequency, and MAC address. Controls are not currently exposed.
+
+---
+
+This is entirely vibecoded.  I have no idea what I'm doing.  

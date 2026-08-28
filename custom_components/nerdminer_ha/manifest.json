@@ -1,0 +1,11 @@
+{
+  "domain": "nerdminer_ha",
+  "name": "NerdMiner",
+  "version": "0.1.0",
+  "documentation": "https://github.com/example/nerdminer-ha",
+  "issue_tracker": "https://github.com/example/nerdminer-ha/issues",
+  "codeowners": [],
+  "config_flow": true,
+  "iot_class": "local_polling",
+  "requirements": []
+}

@@ -64,6 +64,8 @@ class NerdMinerButton(CoordinatorEntity[NerdMinerCoordinator], ButtonEntity):
     async def async_press(self) -> None:
         """Call the button's API endpoint."""
         payload = {"action": "next"} if self.description.key == "display_next" else None
-        await self.coordinator.async_request(self.description.path, payload=payload)
+        await self.coordinator.async_request(
+            self.description.path, payload=payload, expect_json=False
+        )
         if self.description.key not in {"restart", "reset_stats"}:
             await self.coordinator.async_refresh()

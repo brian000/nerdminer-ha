@@ -10,7 +10,7 @@ from aiohttp import ClientError
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 
-from .const import API_HEADERS, API_PATH, DEFAULT_SCAN_INTERVAL
+from .const import API_HEADERS, API_JSON_HEADERS, API_PATH, DEFAULT_SCAN_INTERVAL
 
 _LOGGER = logging.getLogger(__package__)
 
@@ -33,21 +33,29 @@ class NerdMinerCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         return await self.async_request(API_PATH)
 
     async def async_request(
-        self, path: str, method: str = "GET", payload: dict[str, Any] | None = None
-    ) -> dict[str, Any]:
+        self,
+        path: str,
+        method: str = "GET",
+        payload: dict[str, Any] | None = None,
+        expect_json: bool = True,
+    ) -> dict[str, Any] | None:
         """Make an authenticated request to the device API."""
         session = async_get_clientsession(self.hass)
         try:
+            headers = API_JSON_HEADERS if payload is not None else API_HEADERS
             async with session.request(
                 method,
                 f"http://{self.host}{path}",
-                headers=API_HEADERS,
+                headers=headers,
                 json=payload,
             ) as response:
                 response.raise_for_status()
-                data = await response.json()
+                if not expect_json:
+                    return None
+                data = await response.json(content_type=None)
         except (ClientError, ValueError) as err:
-            raise UpdateFailed(f"Unable to fetch data from {self.host}") from err
+            _LOGGER.error("Nerdminer-HA request failed: %s %s", method, path)
+            raise UpdateFailed(f"Unable to request data from {self.host}") from err
 
         if not isinstance(data, dict):
             raise UpdateFailed("Nerdminer-HA API returned an invalid response")

@@ -53,5 +53,6 @@ class NerdMinerBrightness(CoordinatorEntity[NerdMinerCoordinator], NumberEntity)
         await self.coordinator.async_request(
             "/api/axehub/v1/display/brightness",
             payload={"value": round(value * 255 / 100), "persist": True},
+            expect_json=False,
         )
         await self.coordinator.async_refresh()

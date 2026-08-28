@@ -2,10 +2,13 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
 from typing import Any
 
-from homeassistant.components.sensor import SensorDeviceClass, SensorEntity
+from homeassistant.components.sensor import (
+    SensorDeviceClass,
+    SensorEntity,
+    SensorEntityDescription,
+)
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import EntityCategory, UnitOfTemperature
 from homeassistant.core import HomeAssistant
@@ -17,34 +20,30 @@ from .const import DOMAIN
 from .coordinator import NerdMinerCoordinator
 
 
-@dataclass(frozen=True)
-class SensorDescription:
-    """Describe one NerdMiner sensor."""
-
-    key: str
-    name: str
-    path: tuple[str, ...]
-    unit: str | None = None
-    device_class: SensorDeviceClass | None = None
-    entity_category: EntityCategory | None = None
-
-
 SENSORS = (
-    SensorDescription("current_khs", "Current Hashrate", ("hashing", "current_khs"), "kH/s"),
-    SensorDescription("average_1m_khs", "1 Minute Average Hashrate", ("hashing", "average_1m_khs"), "kH/s"),
-    SensorDescription("average_5m_khs", "5 Minute Average Hashrate", ("hashing", "average_5m_khs"), "kH/s"),
-    SensorDescription("shares_accepted", "Shares Accepted", ("hashing", "shares_accepted")),
-    SensorDescription("shares_rejected", "Shares Rejected", ("hashing", "shares_rejected")),
-    SensorDescription("best_diff", "Best Difficulty", ("hashing", "best_diff")),
-    SensorDescription("best_session_diff", "Best Session Difficulty", ("hashing", "best_session_diff")),
-    SensorDescription("valid_blocks", "Valid Blocks", ("hashing", "valid_blocks")),
-    SensorDescription("hw_khs", "Hardware Hashrate", ("hashing", "hw_khs"), "kH/s"),
-    SensorDescription("sw_khs", "Software Hashrate", ("hashing", "sw_khs"), "kH/s"),
-    SensorDescription("temp_board_c", "Board Temperature", ("hardware", "temp_board_c"), UnitOfTemperature.CELSIUS, SensorDeviceClass.TEMPERATURE),
-    SensorDescription("uptime_s", "Uptime", ("hardware", "uptime_s"), "s"),
-    SensorDescription("cpu_freq_mhz", "CPU Frequency", ("hardware", "cpu_freq_mhz"), "MHz"),
-    SensorDescription("mac", "MAC Address", ("device", "mac"), entity_category=EntityCategory.DIAGNOSTIC),
+    SensorEntityDescription(key="current_khs", name="Current Hashrate", native_unit_of_measurement="kH/s"),
+    SensorEntityDescription(key="average_1m_khs", name="1 Minute Average Hashrate", native_unit_of_measurement="kH/s"),
+    SensorEntityDescription(key="average_5m_khs", name="5 Minute Average Hashrate", native_unit_of_measurement="kH/s"),
+    SensorEntityDescription(key="shares_accepted", name="Shares Accepted"),
+    SensorEntityDescription(key="shares_rejected", name="Shares Rejected"),
+    SensorEntityDescription(key="best_diff", name="Best Difficulty"),
+    SensorEntityDescription(key="best_session_diff", name="Best Session Difficulty"),
+    SensorEntityDescription(key="valid_blocks", name="Valid Blocks"),
+    SensorEntityDescription(key="hw_khs", name="Hardware Hashrate", native_unit_of_measurement="kH/s"),
+    SensorEntityDescription(key="sw_khs", name="Software Hashrate", native_unit_of_measurement="kH/s"),
+    SensorEntityDescription(key="temp_board_c", name="Board Temperature", native_unit_of_measurement=UnitOfTemperature.CELSIUS, device_class=SensorDeviceClass.TEMPERATURE),
+    SensorEntityDescription(key="uptime_s", name="Uptime", native_unit_of_measurement="s"),
+    SensorEntityDescription(key="cpu_freq_mhz", name="CPU Frequency", native_unit_of_measurement="MHz"),
+    SensorEntityDescription(key="mac", name="MAC Address", entity_category=EntityCategory.DIAGNOSTIC),
 )
+
+SENSOR_PATHS = {
+    **{description.key: ("hashing", description.key) for description in SENSORS[:10]},
+    "temp_board_c": ("hardware", "temp_board_c"),
+    "uptime_s": ("hardware", "uptime_s"),
+    "cpu_freq_mhz": ("hardware", "cpu_freq_mhz"),
+    "mac": ("device", "mac"),
+}
 
 
 async def async_setup_entry(
@@ -70,9 +69,6 @@ class NerdMinerSensor(CoordinatorEntity[NerdMinerCoordinator], SensorEntity):
         self.entity_description = description
         self._attr_name = description.name
         self._attr_unique_id = f"{entry.entry_id}_{description.key}"
-        self._attr_native_unit_of_measurement = description.unit
-        self._attr_device_class = description.device_class
-        self._attr_entity_category = description.entity_category
         device = coordinator.data.get("device", {}) if coordinator.data else {}
         self._attr_device_info = DeviceInfo(
             identifiers={(DOMAIN, entry.unique_id or entry.entry_id)},
@@ -86,7 +82,7 @@ class NerdMinerSensor(CoordinatorEntity[NerdMinerCoordinator], SensorEntity):
     def native_value(self) -> Any:
         """Return the sensor value from the API response."""
         value: Any = self.coordinator.data
-        for key in self.entity_description.path:
+        for key in SENSOR_PATHS[self.entity_description.key]:
             if not isinstance(value, dict):
                 return None
             value = value.get(key)

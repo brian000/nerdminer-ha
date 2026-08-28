@@ -53,6 +53,8 @@ class NerdMinerInvertColors(CoordinatorEntity[NerdMinerCoordinator], SwitchEntit
 
     async def _async_set_inversion(self, enabled: bool) -> None:
         await self.coordinator.async_request(
-            "/api/axehub/v1/display/invert", payload={"on": enabled}
+            "/api/axehub/v1/display/invert",
+            payload={"on": enabled},
+            expect_json=False,
         )
         await self.coordinator.async_refresh()

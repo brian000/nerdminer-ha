@@ -50,6 +50,16 @@ hours_to_show: 6
 
 The card plots the 1-minute and 5-minute average hashrates together, shows hardware/software hashrate composition, and includes current hashrate, shares, board temperature, uptime, and refresh status.
 
+For a farm-wide view, add the second card. It automatically discovers all Nerdminer sensor entities:
+
+```yaml
+type: custom:nerdminer-farm-card
+title: Nerdminer farm
+hours_to_show: 6
+```
+
+Both cards use Home Assistant's native card and history-graph rendering. They do not include custom CSS, gradients, SVG, canvas, or other custom graphics.
+
 ---
 
 This is entirely vibecoded.  I have no idea what I'm doing.  

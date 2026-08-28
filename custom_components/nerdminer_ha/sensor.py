@@ -32,7 +32,7 @@ SENSORS = (
     SensorEntityDescription(key="hw_khs", name="Hardware Hashrate", native_unit_of_measurement="kH/s"),
     SensorEntityDescription(key="sw_khs", name="Software Hashrate", native_unit_of_measurement="kH/s"),
     SensorEntityDescription(key="temp_board_c", name="Board Temperature", native_unit_of_measurement=UnitOfTemperature.CELSIUS, device_class=SensorDeviceClass.TEMPERATURE),
-    SensorEntityDescription(key="uptime_s", name="Uptime", native_unit_of_measurement="s"),
+    SensorEntityDescription(key="uptime_s", name="Uptime", native_unit_of_measurement="h"),
     SensorEntityDescription(key="cpu_freq_mhz", name="CPU Frequency", native_unit_of_measurement="MHz"),
     SensorEntityDescription(key="mac", name="MAC Address", entity_category=EntityCategory.DIAGNOSTIC),
 )
@@ -63,7 +63,7 @@ class NerdMinerSensor(CoordinatorEntity[NerdMinerCoordinator], SensorEntity):
         self,
         coordinator: NerdMinerCoordinator,
         entry: ConfigEntry,
-        description: SensorDescription,
+        description: SensorEntityDescription,
     ) -> None:
         super().__init__(coordinator)
         self.entity_description = description
@@ -86,4 +86,6 @@ class NerdMinerSensor(CoordinatorEntity[NerdMinerCoordinator], SensorEntity):
             if not isinstance(value, dict):
                 return None
             value = value.get(key)
+        if self.entity_description.key == "uptime_s" and isinstance(value, (int, float)):
+            return value / 3600
         return value

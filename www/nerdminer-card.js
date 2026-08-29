@@ -136,7 +136,7 @@ class NerdminerCard extends HTMLElement {
     const history = nativeHistoryCard("Hashrate history", ["average_1m", "average_5m", "current", "hardware", "software"].map((key) => this._entity(key)), this.config.hours_to_show);
     history.hass = this._hass;
     card.append(history);
-    this.append(card);
+    root.append(card);
   }
 }
 
@@ -194,7 +194,7 @@ class NerdminerFarmCard extends HTMLElement {
     const history = nativeHistoryCard("Farm hashrate history", [...this._entities("current"), ...this._entities("average_1m"), ...this._entities("average_5m")], this.config.hours_to_show);
     history.hass = this._hass;
     card.append(history);
-    this.append(card);
+    root.append(card);
   }
 }
 

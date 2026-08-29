@@ -115,6 +115,12 @@ class NerdminerCard extends HTMLElement {
     return this._hass.states[this._entity(key)];
   }
 
+  _formatValue(value, decimals = 2) {
+    if (value === undefined || value === null || value === "unknown" || value === "unavailable") return "-";
+    const num = Number(value);
+    return Number.isFinite(num) ? num.toLocaleString(undefined, { maximumFractionDigits: Math.min(5, decimals) }) : value;
+  }
+
   _render() {
     if (!this._hass || !this.config) return;
     const root = this.shadowRoot || this.attachShadow({ mode: "open" });
@@ -124,13 +130,15 @@ class NerdminerCard extends HTMLElement {
     const title = document.createElement("h2");
     title.innerText = this.config.title;
     content.append(title);
-    content.append(nativeRow("Current hashrate", formatValue(this._state("current")?.state, 0), "kH/s"));
-    content.append(nativeRow("1-minute average", formatValue(this._state("average_1m")?.state), "kH/s"));
-    content.append(nativeRow("5-minute average", formatValue(this._state("average_5m")?.state), "kH/s"));
-    content.append(nativeRow("Hardware / software", `${formatValue(this._state("hardware")?.state, 0)} / ${formatValue(this._state("software")?.state, 0)}`, "kH/s"));
-    content.append(nativeRow("Shares accepted / rejected", `${formatValue(this._state("shares_accepted")?.state, 0)} / ${formatValue(this._state("shares_rejected")?.state, 0)}`));
-    content.append(nativeRow("Board temperature", formatValue(this._state("temperature")?.state), "°C"));
-    content.append(nativeRow("Uptime", formatValue(this._state("uptime")?.state), "h"));
+    content.append(nativeRow("Current hashrate", this._formatValue(this._state("current")?.state, 1), "kH/s"));
+    content.append(nativeRow("1-minute average", this._formatValue(this._state("average_1m")?.state, 2), "kH/s"));
+    content.append(nativeRow("5-minute average", this._formatValue(this._state("average_5m")?.state, 2), "kH/s"));
+    content.append(nativeRow("Hardware / software", `${this._formatValue(this._state("hardware")?.state, 1)} / ${this._formatValue(this._state("software")?.state, 1)}`, "kH/s"));
+    content.append(nativeRow("Best difficulty", this._formatValue(this._state("best_diff")?.state, 3)));
+    content.append(nativeRow("Best session difficulty", this._formatValue(this._state("best_session_diff")?.state, 3)));
+    content.append(nativeRow("Shares accepted / rejected", `${this._formatValue(this._state("shares_accepted")?.state, 0)} / ${this._formatValue(this._state("shares_rejected")?.state, 0)}`));
+    content.append(nativeRow("Board temperature", this._formatValue(this._state("temperature")?.state, 2), "°C"));
+    content.append(nativeRow("Uptime", this._formatValue(this._state("uptime")?.state, 2), "h"));
     content.append(nativeRow("MAC address", this._state("mac")?.state || "-"));
     card.append(content);
     const history = nativeHistoryCard("Hashrate history", ["average_1m", "average_5m", "current", "hardware", "software"].map((key) => this._entity(key)), this.config.hours_to_show);

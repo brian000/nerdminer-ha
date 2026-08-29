@@ -2,6 +2,9 @@
 
 from __future__ import annotations
 
+from pathlib import Path
+
+from homeassistant.components import frontend
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import CONF_HOST
 from homeassistant.core import HomeAssistant
@@ -15,6 +18,11 @@ PLATFORMS = ["sensor"]
 
 async def async_setup(hass: HomeAssistant, config: dict) -> bool:
     """Set up the NerdMiner integration."""
+    card_path = Path(__file__).parent / "nerdminer-card.js"
+    hass.http.register_static_path(
+        "/nerdminer_ha/nerdminer-card.js", str(card_path), cache_headers=False
+    )
+    frontend.add_extra_js_url(hass, "/nerdminer_ha/nerdminer-card.js")
     return True
 
 

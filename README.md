@@ -26,18 +26,7 @@ Then go to **Settings > Devices & services**, select **Add Integration**, and se
 
 ## Nerdminer dashboard card
 
-The repository includes a custom Lovelace card with live metrics and history graphs. HACS installs the integration itself, but the card JavaScript must also be copied into Home Assistant's `www` directory:
-
-```text
-/config/www/nerdminer-card.js
-```
-
-Copy `www/nerdminer-card.js` there, then register it under **Settings > Dashboards > Resources**:
-
-```text
-URL: /local/nerdminer-card.js
-Resource type: JavaScript module
-```
+The repository includes custom Lovelace cards with live metrics and history graphs. HACS installs and automatically loads the card JavaScript with the integration; no file copying or dashboard resource registration is required.
 
 Add the card to a dashboard in YAML mode. Replace `nm01` with the entity prefix shown by your miner's entities:
 
@@ -48,7 +37,7 @@ entity_prefix: nm01
 hours_to_show: 6
 ```
 
-The card plots the 1-minute and 5-minute average hashrates together, shows hardware/software hashrate composition, and includes current hashrate, shares, board temperature, uptime, and refresh status.
+The card plots the 1-minute and 5-minute average hashrates together, shows hardware/software hashrate composition, and includes current hashrate, shares, board temperature, uptime, and refresh status. After a browser hard refresh, both cards appear in **Add card** under custom cards and provide GUI configuration fields with sensible defaults.
 
 For a farm-wide view, add the second card. It automatically discovers all Nerdminer sensor entities:
 

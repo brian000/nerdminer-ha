@@ -77,6 +77,14 @@ class NerdMinerSensor(CoordinatorEntity[NerdMinerCoordinator], SensorEntity):
             model=device.get("board"),
             sw_version=coordinator.data.get("firmware", {}).get("version") if coordinator.data else None,
         )
+        # Set default precision for display in Home Assistant UI
+        if description.key in {"average_1m_khs", "average_5m_khs"}:
+            self._attr_accuracy_decimals = 3
+        elif description.key in {"best_diff", "best_session_diff"}:
+            self._attr_accuracy_decimals = 3
+        elif description.key == "uptime_s":
+            # Uptime is shown in hours; one decimal place
+            self._attr_accuracy_decimals = 1
 
     @property
     def native_value(self) -> Any:

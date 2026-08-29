@@ -97,6 +97,7 @@ class NerdminerCard extends HTMLElement {
   setConfig(config) {
     if (!config?.entity_prefix && !config?.entities) throw new Error("Set entity_prefix or entities");
     this.config = { title: "Nerdminer-HA", hours_to_show: 6, ...config };
+    this._render();
   }
 
   set hass(hass) {
@@ -132,7 +133,9 @@ class NerdminerCard extends HTMLElement {
     content.append(nativeRow("Uptime", formatValue(this._state("uptime")?.state), "h"));
     content.append(nativeRow("MAC address", this._state("mac")?.state || "-"));
     card.append(content);
-    card.append(nativeHistoryCard("Hashrate history", ["average_1m", "average_5m", "current", "hardware", "software"].map((key) => this._entity(key)), this.config.hours_to_show));
+    const history = nativeHistoryCard("Hashrate history", ["average_1m", "average_5m", "current", "hardware", "software"].map((key) => this._entity(key)), this.config.hours_to_show);
+    history.hass = this._hass;
+    card.append(history);
     this.append(card);
   }
 }
@@ -146,7 +149,10 @@ class NerdminerFarmCard extends HTMLElement {
     return document.createElement("nerdminer-farm-card-editor");
   }
 
-  setConfig(config) { this.config = { title: "Nerdminer farm", hours_to_show: 6, ...config }; }
+  setConfig(config) {
+    this.config = { title: "Nerdminer farm", hours_to_show: 6, ...config };
+    this._render();
+  }
 
   set hass(hass) {
     this._hass = hass;
@@ -185,7 +191,9 @@ class NerdminerFarmCard extends HTMLElement {
     content.append(nativeRow("Shares accepted / rejected", `${formatValue(this._total("shares_accepted"), 0)} / ${formatValue(this._total("shares_rejected"), 0)}`));
     content.append(nativeRow("Valid blocks", formatValue(this._total("valid_blocks"), 0)));
     card.append(content);
-    card.append(nativeHistoryCard("Farm hashrate history", [...this._entities("current"), ...this._entities("average_1m"), ...this._entities("average_5m")], this.config.hours_to_show));
+    const history = nativeHistoryCard("Farm hashrate history", [...this._entities("current"), ...this._entities("average_1m"), ...this._entities("average_5m")], this.config.hours_to_show);
+    history.hass = this._hass;
+    card.append(history);
     this.append(card);
   }
 }

@@ -18,12 +18,12 @@ BUTTONS = (
     ButtonEntityDescription(
         key="restart",
         name="Restart",
-        entity_category=EntityCategory.DIAGNOSTIC,
+        entity_category=EntityCategory.CONFIG,
     ),
     ButtonEntityDescription(
         key="next_display",
         name="Next Display",
-        entity_category=EntityCategory.DIAGNOSTIC,
+        entity_category=EntityCategory.CONFIG,
     ),
 )
 

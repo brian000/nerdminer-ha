@@ -88,12 +88,14 @@ SENSORS = (
         name="Best Difficulty",
         state_class=SensorStateClass.MEASUREMENT,
         suggested_display_precision=3,
+        icon="mdi:trophy",
     ),
     SensorEntityDescription(
         key="best_session_diff",
         name="Best Session Difficulty",
         state_class=SensorStateClass.MEASUREMENT,
         suggested_display_precision=3,
+        icon="mdi:trophy",
     ),
     SensorEntityDescription(
         key="valid_blocks",

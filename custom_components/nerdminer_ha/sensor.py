@@ -20,7 +20,7 @@ from homeassistant.const import (
     UnitOfTime,
 )
 from homeassistant.core import HomeAssistant
-from homeassistant.helpers.device_registry import DeviceInfo
+from homeassistant.helpers.device_registry import CONNECTION_NETWORK_MAC, DeviceInfo
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
@@ -37,6 +37,7 @@ SENSORS = (
         native_unit_of_measurement="kH/s",
         state_class=SensorStateClass.MEASUREMENT,
         suggested_display_precision=1,
+        icon="mdi:pickaxe",
     ),
     SensorEntityDescription(
         key="average_1m_khs",
@@ -44,6 +45,7 @@ SENSORS = (
         native_unit_of_measurement="kH/s",
         state_class=SensorStateClass.MEASUREMENT,
         suggested_display_precision=1,
+        icon="mdi:pickaxe",
     ),
     SensorEntityDescription(
         key="average_5m_khs",
@@ -51,6 +53,7 @@ SENSORS = (
         native_unit_of_measurement="kH/s",
         state_class=SensorStateClass.MEASUREMENT,
         suggested_display_precision=1,
+        icon="mdi:pickaxe",
     ),
     SensorEntityDescription(
         key="hw_khs",
@@ -58,6 +61,7 @@ SENSORS = (
         native_unit_of_measurement="kH/s",
         state_class=SensorStateClass.MEASUREMENT,
         suggested_display_precision=1,
+        icon="mdi:pickaxe",
     ),
     SensorEntityDescription(
         key="sw_khs",
@@ -65,16 +69,19 @@ SENSORS = (
         native_unit_of_measurement="kH/s",
         state_class=SensorStateClass.MEASUREMENT,
         suggested_display_precision=1,
+        icon="mdi:pickaxe",
     ),
     SensorEntityDescription(
         key="shares_accepted",
         name="Shares Accepted",
         state_class=SensorStateClass.TOTAL_INCREASING,
+        icon="mdi:check-bold",
     ),
     SensorEntityDescription(
         key="shares_rejected",
         name="Shares Rejected",
         state_class=SensorStateClass.TOTAL_INCREASING,
+        icon="mdi:close-circle",
     ),
     SensorEntityDescription(
         key="best_diff",
@@ -92,6 +99,7 @@ SENSORS = (
         key="valid_blocks",
         name="Valid Blocks",
         state_class=SensorStateClass.TOTAL_INCREASING,
+        icon="mdi:bitcoin",
     ),
     SensorEntityDescription(
         key="temp_board_c",
@@ -139,16 +147,6 @@ SENSORS = (
         entity_category=EntityCategory.DIAGNOSTIC,
     ),
     SensorEntityDescription(
-        key="firmware_version",
-        name="Firmware Version",
-        entity_category=EntityCategory.DIAGNOSTIC,
-    ),
-    SensorEntityDescription(
-        key="mac",
-        name="MAC Address",
-        entity_category=EntityCategory.DIAGNOSTIC,
-    ),
-    SensorEntityDescription(
         key="hostname",
         name="Hostname",
         entity_category=EntityCategory.DIAGNOSTIC,
@@ -156,11 +154,6 @@ SENSORS = (
     SensorEntityDescription(
         key="board",
         name="Board",
-        entity_category=EntityCategory.DIAGNOSTIC,
-    ),
-    SensorEntityDescription(
-        key="chip",
-        name="Chip",
         entity_category=EntityCategory.DIAGNOSTIC,
     ),
 )
@@ -206,12 +199,16 @@ class NerdMinerSensor(CoordinatorEntity[NerdMinerCoordinator], SensorEntity):
         self._attr_name = description.name
         self._attr_unique_id = f"{entry.entry_id}_{description.key}"
         device = coordinator.data.get("device", {}) if coordinator.data else {}
+        mac = device.get("mac") if isinstance(device, dict) else None
+        firmware_version = (coordinator.data or {}).get("firmware", {}).get("version") if coordinator.data else None
         self._attr_device_info = DeviceInfo(
             identifiers={(DOMAIN, entry.unique_id or entry.entry_id)},
             name=device.get("hostname", entry.title),
             manufacturer="Nerdminer-HA",
             model=device.get("board"),
-            sw_version=coordinator.data.get("firmware", {}).get("version") if coordinator.data else None,
+            hw_version=device.get("chip"),
+            sw_version=firmware_version,
+            connections={(CONNECTION_NETWORK_MAC, mac)} if isinstance(mac, str) and mac else None,
         )
 
     @property

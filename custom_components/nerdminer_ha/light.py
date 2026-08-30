@@ -7,7 +7,7 @@ from typing import Any
 from homeassistant.components.light import ATTR_BRIGHTNESS, ColorMode, LightEntity
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
-from homeassistant.helpers.device_registry import DeviceInfo
+from homeassistant.helpers.device_registry import CONNECTION_NETWORK_MAC, DeviceInfo
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
@@ -36,12 +36,16 @@ class NerdMinerBacklightLight(CoordinatorEntity[NerdMinerCoordinator], LightEnti
         super().__init__(coordinator)
         self._attr_unique_id = f"{entry.entry_id}_backlight"
         device = coordinator.data.get("device", {}) if coordinator.data else {}
+        mac = device.get("mac") if isinstance(device, dict) else None
+        firmware_version = (coordinator.data or {}).get("firmware", {}).get("version") if coordinator.data else None
         self._attr_device_info = DeviceInfo(
             identifiers={(DOMAIN, entry.unique_id or entry.entry_id)},
             name=device.get("hostname", entry.title),
             manufacturer="Nerdminer-HA",
             model=device.get("board"),
-            sw_version=coordinator.data.get("firmware", {}).get("version") if coordinator.data else None,
+            hw_version=device.get("chip"),
+            sw_version=firmware_version,
+            connections={(CONNECTION_NETWORK_MAC, mac)} if isinstance(mac, str) and mac else None,
         )
 
     @property

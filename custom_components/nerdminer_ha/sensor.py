@@ -147,11 +147,6 @@ SENSORS = (
         entity_category=EntityCategory.DIAGNOSTIC,
     ),
     SensorEntityDescription(
-        key="hostname",
-        name="Hostname",
-        entity_category=EntityCategory.DIAGNOSTIC,
-    ),
-    SensorEntityDescription(
         key="board",
         name="Board",
         entity_category=EntityCategory.DIAGNOSTIC,
@@ -208,6 +203,7 @@ class NerdMinerSensor(CoordinatorEntity[NerdMinerCoordinator], SensorEntity):
             model=device.get("board"),
             hw_version=device.get("chip"),
             sw_version=firmware_version,
+            configuration_url=None,
             connections={(CONNECTION_NETWORK_MAC, mac)} if isinstance(mac, str) and mac else None,
         )
 

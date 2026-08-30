@@ -67,8 +67,8 @@ class NerdMinerButton(CoordinatorEntity[NerdMinerCoordinator], ButtonEntity):
     async def async_press(self) -> None:
         """Handle the button press."""
         if self.entity_description.key == "restart":
-            await self.coordinator.async_post("/system/restart", {})
+            await self.coordinator.async_post("/api/axehub/v1/system/restart", {})
             return
 
         if self.entity_description.key == "next_display":
-            await self.coordinator.async_post("/display/mode", {"action": "next"})
+            await self.coordinator.async_post("/api/axehub/v1/display/mode", {"action": "next"})

@@ -146,11 +146,6 @@ SENSORS = (
         name="Last Reset Reason",
         entity_category=EntityCategory.DIAGNOSTIC,
     ),
-    SensorEntityDescription(
-        key="board",
-        name="Board",
-        entity_category=EntityCategory.DIAGNOSTIC,
-    ),
 )
 
 # Maps each sensor key to its (section, field) location in the /info payload.

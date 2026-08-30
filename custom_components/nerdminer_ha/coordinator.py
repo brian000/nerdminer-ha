@@ -49,7 +49,12 @@ class NerdMinerCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         try:
             async with session.post(url, headers=API_HEADERS, json=payload) as response:
                 response.raise_for_status()
-                data = await response.json(content_type=None)
+                if response.status == 204 or not response.content_type:
+                    return {}
+                try:
+                    data = await response.json(content_type=None)
+                except ValueError:
+                    return {}
         except (ClientError, ValueError) as err:
             raise UpdateFailed(f"Unable to send command to {self.host}") from err
         return data if isinstance(data, dict) else {}

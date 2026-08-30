@@ -95,8 +95,7 @@ class NerdminerCard extends HTMLElement {
   }
 
   setConfig(config) {
-    if (!config?.entity_prefix && !config?.entities) throw new Error("Set entity_prefix or entities");
-    this.config = { title: "Nerdminer-HA", hours_to_show: 6, ...config };
+    this.config = { ...NerdminerCard.getStubConfig(), title: "Nerdminer-HA", hours_to_show: 6, ...(config || {}) };
     this._render();
   }
 
@@ -167,7 +166,7 @@ class NerdminerFarmCard extends HTMLElement {
   }
 
   setConfig(config) {
-    this.config = { title: "Nerdminer farm", hours_to_show: 6, ...config };
+    this.config = { ...NerdminerFarmCard.getStubConfig(), title: "Nerdminer farm", hours_to_show: 6, ...(config || {}) };
     this._render();
   }
 

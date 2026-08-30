@@ -1,7 +1,7 @@
 {
   "domain": "nerdminer_ha",
   "name": "Nerdminer-HA",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "documentation": "https://github.com/brian000/nerdminer-ha",
   "issue_tracker": "https://github.com/brian000/nerdminer-ha/issues",
   "codeowners": [],

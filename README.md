@@ -22,7 +22,7 @@ Add one integration entry for each miner using its hostname or IP address.
 
 Copy `custom_components/nerdminer_ha` into the `custom_components` directory of your Home Assistant configuration and restart Home Assistant.
 
-Then go to **Settings > Devices & services**, select **Add Integration**, and search for **Nerdminer-HA**. Add one integration entry for each miner using its hostname or IP address. The integration creates sensors for hashing, shares, difficulty, blocks, temperatures, uptime, CPU frequency, and MAC address. Controls are not currently exposed.
+Then go to **Settings > Devices & services**, select **Add Integration**, and search for **Nerdminer-HA**. Add one integration entry for each miner using its hostname or IP address. The integration creates sensors for hashing, shares, difficulty, blocks, temperature, uptime, CPU frequency, Wi-Fi signal, free heap, and diagnostic sensors for firmware version, MAC address, hostname, board, and chip. A light entity controls the LCD backlight (on/off and brightness).
 
 ## Nerdminer dashboard card
 

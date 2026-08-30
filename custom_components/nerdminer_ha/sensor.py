@@ -8,9 +8,17 @@ from homeassistant.components.sensor import (
     SensorDeviceClass,
     SensorEntity,
     SensorEntityDescription,
+    SensorStateClass,
 )
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import EntityCategory, UnitOfTemperature
+from homeassistant.const import (
+    EntityCategory,
+    SIGNAL_STRENGTH_DECIBELS_MILLIWATT,
+    UnitOfFrequency,
+    UnitOfInformation,
+    UnitOfTemperature,
+    UnitOfTime,
+)
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.device_registry import DeviceInfo
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
@@ -19,30 +27,158 @@ from homeassistant.helpers.update_coordinator import CoordinatorEntity
 from .const import DOMAIN
 from .coordinator import NerdMinerCoordinator
 
+# Hashrate figures from the AxeHub API are reported in kH/s.
+_HASHRATE_KEYS = ("current_khs", "average_1m_khs", "average_5m_khs", "hw_khs", "sw_khs")
 
 SENSORS = (
-    SensorEntityDescription(key="current_khs", name="Current Hashrate", native_unit_of_measurement="kH/s"),
-    SensorEntityDescription(key="average_1m_khs", name="1 Minute Average Hashrate", native_unit_of_measurement="kH/s"),
-    SensorEntityDescription(key="average_5m_khs", name="5 Minute Average Hashrate", native_unit_of_measurement="kH/s"),
-    SensorEntityDescription(key="shares_accepted", name="Shares Accepted"),
-    SensorEntityDescription(key="shares_rejected", name="Shares Rejected"),
-    SensorEntityDescription(key="best_diff", name="Best Difficulty"),
-    SensorEntityDescription(key="best_session_diff", name="Best Session Difficulty"),
-    SensorEntityDescription(key="valid_blocks", name="Valid Blocks"),
-    SensorEntityDescription(key="hw_khs", name="Hardware Hashrate", native_unit_of_measurement="kH/s"),
-    SensorEntityDescription(key="sw_khs", name="Software Hashrate", native_unit_of_measurement="kH/s"),
-    SensorEntityDescription(key="temp_board_c", name="Board Temperature", native_unit_of_measurement=UnitOfTemperature.CELSIUS, device_class=SensorDeviceClass.TEMPERATURE),
-    SensorEntityDescription(key="uptime_s", name="Uptime", native_unit_of_measurement="h"),
-    SensorEntityDescription(key="cpu_freq_mhz", name="CPU Frequency", native_unit_of_measurement="MHz"),
-    SensorEntityDescription(key="mac", name="MAC Address", entity_category=EntityCategory.DIAGNOSTIC),
+    SensorEntityDescription(
+        key="current_khs",
+        name="Current Hashrate",
+        native_unit_of_measurement="kH/s",
+        state_class=SensorStateClass.MEASUREMENT,
+        suggested_display_precision=1,
+    ),
+    SensorEntityDescription(
+        key="average_1m_khs",
+        name="1 Minute Average Hashrate",
+        native_unit_of_measurement="kH/s",
+        state_class=SensorStateClass.MEASUREMENT,
+        suggested_display_precision=1,
+    ),
+    SensorEntityDescription(
+        key="average_5m_khs",
+        name="5 Minute Average Hashrate",
+        native_unit_of_measurement="kH/s",
+        state_class=SensorStateClass.MEASUREMENT,
+        suggested_display_precision=1,
+    ),
+    SensorEntityDescription(
+        key="hw_khs",
+        name="Hardware Hashrate",
+        native_unit_of_measurement="kH/s",
+        state_class=SensorStateClass.MEASUREMENT,
+        suggested_display_precision=1,
+    ),
+    SensorEntityDescription(
+        key="sw_khs",
+        name="Software Hashrate",
+        native_unit_of_measurement="kH/s",
+        state_class=SensorStateClass.MEASUREMENT,
+        suggested_display_precision=1,
+    ),
+    SensorEntityDescription(
+        key="shares_accepted",
+        name="Shares Accepted",
+        state_class=SensorStateClass.TOTAL_INCREASING,
+    ),
+    SensorEntityDescription(
+        key="shares_rejected",
+        name="Shares Rejected",
+        state_class=SensorStateClass.TOTAL_INCREASING,
+    ),
+    SensorEntityDescription(
+        key="best_diff",
+        name="Best Difficulty",
+        state_class=SensorStateClass.MEASUREMENT,
+        suggested_display_precision=3,
+    ),
+    SensorEntityDescription(
+        key="best_session_diff",
+        name="Best Session Difficulty",
+        state_class=SensorStateClass.MEASUREMENT,
+        suggested_display_precision=3,
+    ),
+    SensorEntityDescription(
+        key="valid_blocks",
+        name="Valid Blocks",
+        state_class=SensorStateClass.TOTAL_INCREASING,
+    ),
+    SensorEntityDescription(
+        key="temp_board_c",
+        name="Board Temperature",
+        native_unit_of_measurement=UnitOfTemperature.CELSIUS,
+        device_class=SensorDeviceClass.TEMPERATURE,
+        state_class=SensorStateClass.MEASUREMENT,
+        suggested_display_precision=1,
+    ),
+    SensorEntityDescription(
+        key="uptime_s",
+        name="Uptime",
+        native_unit_of_measurement=UnitOfTime.SECONDS,
+        suggested_unit_of_measurement=UnitOfTime.DAYS,
+        device_class=SensorDeviceClass.DURATION,
+        state_class=SensorStateClass.MEASUREMENT,
+        suggested_display_precision=1,
+    ),
+    SensorEntityDescription(
+        key="cpu_freq_mhz",
+        name="CPU Frequency",
+        native_unit_of_measurement=UnitOfFrequency.MEGAHERTZ,
+        device_class=SensorDeviceClass.FREQUENCY,
+        state_class=SensorStateClass.MEASUREMENT,
+    ),
+    SensorEntityDescription(
+        key="heap_free_bytes",
+        name="Free Heap",
+        native_unit_of_measurement=UnitOfInformation.BYTES,
+        device_class=SensorDeviceClass.DATA_SIZE,
+        state_class=SensorStateClass.MEASUREMENT,
+        entity_category=EntityCategory.DIAGNOSTIC,
+    ),
+    SensorEntityDescription(
+        key="wifi_rssi_dbm",
+        name="Wi-Fi Signal",
+        native_unit_of_measurement=SIGNAL_STRENGTH_DECIBELS_MILLIWATT,
+        device_class=SensorDeviceClass.SIGNAL_STRENGTH,
+        state_class=SensorStateClass.MEASUREMENT,
+        entity_category=EntityCategory.DIAGNOSTIC,
+    ),
+    SensorEntityDescription(
+        key="last_reset_reason",
+        name="Last Reset Reason",
+        entity_category=EntityCategory.DIAGNOSTIC,
+    ),
+    SensorEntityDescription(
+        key="firmware_version",
+        name="Firmware Version",
+        entity_category=EntityCategory.DIAGNOSTIC,
+    ),
+    SensorEntityDescription(
+        key="mac",
+        name="MAC Address",
+        entity_category=EntityCategory.DIAGNOSTIC,
+    ),
+    SensorEntityDescription(
+        key="hostname",
+        name="Hostname",
+        entity_category=EntityCategory.DIAGNOSTIC,
+    ),
+    SensorEntityDescription(
+        key="board",
+        name="Board",
+        entity_category=EntityCategory.DIAGNOSTIC,
+    ),
+    SensorEntityDescription(
+        key="chip",
+        name="Chip",
+        entity_category=EntityCategory.DIAGNOSTIC,
+    ),
 )
 
+# Maps each sensor key to its (section, field) location in the /info payload.
 SENSOR_PATHS = {
-    **{description.key: ("hashing", description.key) for description in SENSORS[:10]},
+    **{key: ("hashing", key) for key in (*_HASHRATE_KEYS, "shares_accepted", "shares_rejected", "best_diff", "best_session_diff", "valid_blocks")},
     "temp_board_c": ("hardware", "temp_board_c"),
     "uptime_s": ("hardware", "uptime_s"),
     "cpu_freq_mhz": ("hardware", "cpu_freq_mhz"),
+    "heap_free_bytes": ("hardware", "heap_free_bytes"),
+    "wifi_rssi_dbm": ("hardware", "wifi_rssi_dbm"),
+    "last_reset_reason": ("hardware", "last_reset_reason"),
+    "firmware_version": ("firmware", "version"),
     "mac": ("device", "mac"),
+    "hostname": ("device", "hostname"),
+    "board": ("device", "board"),
+    "chip": ("device", "chip"),
 }
 
 
@@ -77,14 +213,6 @@ class NerdMinerSensor(CoordinatorEntity[NerdMinerCoordinator], SensorEntity):
             model=device.get("board"),
             sw_version=coordinator.data.get("firmware", {}).get("version") if coordinator.data else None,
         )
-        # Set default precision for display in Home Assistant UI
-        if description.key in {"average_1m_khs", "average_5m_khs"}:
-            self._attr_accuracy_decimals = 3
-        elif description.key in {"best_diff", "best_session_diff"}:
-            self._attr_accuracy_decimals = 3
-        elif description.key == "uptime_s":
-            # Uptime is shown in hours; one decimal place
-            self._attr_accuracy_decimals = 1
 
     @property
     def native_value(self) -> Any:
@@ -94,6 +222,4 @@ class NerdMinerSensor(CoordinatorEntity[NerdMinerCoordinator], SensorEntity):
             if not isinstance(value, dict):
                 return None
             value = value.get(key)
-        if self.entity_description.key == "uptime_s" and isinstance(value, (int, float)):
-            return value / 3600
         return value

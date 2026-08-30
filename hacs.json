@@ -2,6 +2,6 @@
   "name": "Nerdminer-HA",
   "content_in_root": false,
   "render_readme": true,
-  "domains": ["sensor"],
+  "domains": ["sensor", "light"],
   "homeassistant": "2024.1.0"
 }

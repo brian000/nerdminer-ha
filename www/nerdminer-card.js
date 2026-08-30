@@ -105,7 +105,7 @@ class NerdminerCard extends HTMLElement {
     this._render();
   }
 
-  getCardSize() { return 8; }
+  getCardSize() { return 20; }
 
   _entity(key) {
     return this.config.entities?.[key] || `sensor.${this.config.entity_prefix}_${MINER_SUFFIXES[key]}`;
@@ -141,9 +141,18 @@ class NerdminerCard extends HTMLElement {
     content.append(nativeRow("Uptime", this._formatValue(this._state("uptime")?.state, 2), "h"));
     content.append(nativeRow("MAC address", this._state("mac")?.state || "-"));
     card.append(content);
-    const history = nativeHistoryCard("Hashrate history", ["average_1m", "average_5m", "current", "hardware", "software"].map((key) => this._entity(key)), this.config.hours_to_show);
-    history.hass = this._hass;
-    card.append(history);
+    const graphs = [
+      ["Hashrate (current / 1m / 5m)", ["current", "average_1m", "average_5m"]],
+      ["Hardware / software hashrate", ["hardware", "software"]],
+      ["Shares accepted / rejected", ["shares_accepted", "shares_rejected"]],
+      ["Temperature", ["temperature"]],
+      ["Valid blocks", ["valid_blocks"]],
+    ];
+    for (const [title, keys] of graphs) {
+      const history = nativeHistoryCard(title, keys.map((key) => this._entity(key)), this.config.hours_to_show);
+      history.hass = this._hass;
+      card.append(history);
+    }
     root.append(card);
   }
 }
@@ -167,7 +176,7 @@ class NerdminerFarmCard extends HTMLElement {
     this._render();
   }
 
-  getCardSize() { return 7; }
+  getCardSize() { return 19; }
 
   _entities(suffix) {
     if (this.config.entities?.[suffix]) return this.config.entities[suffix];
@@ -199,9 +208,18 @@ class NerdminerFarmCard extends HTMLElement {
     content.append(nativeRow("Shares accepted / rejected", `${formatValue(this._total("shares_accepted"), 0)} / ${formatValue(this._total("shares_rejected"), 0)}`));
     content.append(nativeRow("Valid blocks", formatValue(this._total("valid_blocks"), 0)));
     card.append(content);
-    const history = nativeHistoryCard("Farm hashrate history", [...this._entities("current"), ...this._entities("average_1m"), ...this._entities("average_5m")], this.config.hours_to_show);
-    history.hass = this._hass;
-    card.append(history);
+    const graphs = [
+      ["Global hashrate (current / 1m / 5m)", ["current", "average_1m", "average_5m"]],
+      ["Global hardware / software hashrate", ["hardware", "software"]],
+      ["Global shares accepted / rejected", ["shares_accepted", "shares_rejected"]],
+      ["Global temperatures", ["temperature"]],
+      ["Global valid blocks", ["valid_blocks"]],
+    ];
+    for (const [title, keys] of graphs) {
+      const history = nativeHistoryCard(title, keys.flatMap((key) => this._entities(key)), this.config.hours_to_show);
+      history.hass = this._hass;
+      card.append(history);
+    }
     root.append(card);
   }
 }

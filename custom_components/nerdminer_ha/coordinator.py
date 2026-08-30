@@ -41,3 +41,15 @@ class NerdMinerCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         if not isinstance(data, dict):
             raise UpdateFailed("Nerdminer-HA API returned an invalid response")
         return data
+
+    async def async_post(self, path: str, payload: dict[str, Any]) -> dict[str, Any]:
+        """POST a control command to the device and return the JSON response."""
+        session = async_get_clientsession(self.hass)
+        url = f"http://{self.host}{path}"
+        try:
+            async with session.post(url, headers=API_HEADERS, json=payload) as response:
+                response.raise_for_status()
+                data = await response.json(content_type=None)
+        except (ClientError, ValueError) as err:
+            raise UpdateFailed(f"Unable to send command to {self.host}") from err
+        return data if isinstance(data, dict) else {}

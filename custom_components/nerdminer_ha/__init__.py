@@ -14,7 +14,7 @@ from homeassistant.exceptions import ConfigEntryNotReady
 from .const import DOMAIN
 from .coordinator import NerdMinerCoordinator
 
-PLATFORMS = ["sensor", "light"]
+PLATFORMS = ["sensor", "light", "button"]
 
 
 async def async_setup(hass: HomeAssistant, config: dict) -> bool:
